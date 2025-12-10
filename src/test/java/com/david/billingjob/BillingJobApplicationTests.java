@@ -13,6 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.jdbc.JdbcTestUtils;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @SpringBatchTest
 @SpringBootTest
@@ -25,9 +30,13 @@ class BillingJobApplicationTests {
     @Autowired
     private JobRepositoryTestUtils jobRepositoryTestUtils;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @BeforeEach
     public void setUp() {
         this.jobRepositoryTestUtils.removeJobExecutions();
+        JdbcTestUtils.deleteFromTables(this.jdbcTemplate, "BILLING_DATA");
     }
 
 	@Test
@@ -37,17 +46,17 @@ class BillingJobApplicationTests {
     @Test
     void testJobExecution(CapturedOutput output) throws Exception {
         // given
-        JobParameters jobParameters = this.jobLauncherTestUtils.getUniqueJobParametersBuilder()
-                .addString("input.file", "/some/input/file")
-                .addString("file.format", "csv", false)
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("input.file", "src/main/resources/billing-2023-01.csv")
                 .toJobParameters();
 
         // when
         JobExecution jobExecution = this.jobLauncherTestUtils.launchJob(jobParameters);
 
         // then
-        Assertions.assertTrue(output.getOut().contains("processing billing information from file /some/input/file"));
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.getExitStatus());
+        Assertions.assertTrue(Files.exists(Paths.get("staging", "billing-2023-01.csv")));
+        Assertions.assertEquals(1000, JdbcTestUtils.countRowsInTable(jdbcTemplate, "BILLING_DATA"));
     }
 
 }
