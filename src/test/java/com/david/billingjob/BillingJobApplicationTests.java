@@ -21,7 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @SpringBatchTest
-@SpringBootTest
+@SpringBootTest(properties = "spring.batch.job.enabled=false")
 @ExtendWith(OutputCaptureExtension.class)
 class BillingJobApplicationTests {
 
@@ -50,7 +50,7 @@ class BillingJobApplicationTests {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("input.file", "src/main/resources/billing-2023-01.csv")
                 .addString("output.file", "staging/billing-report-2023-01.csv")
-                .addString("skip.file", "staging/billing-data-skip-2023-01.csv")
+                .addString("skip.file", "staging/billing-data-skip-2023-01.psv")
                 .addJobParameter("data.year", 2023, Integer.class)
                 .addJobParameter("data.month", 1, Integer.class)
                 .toJobParameters();
@@ -73,7 +73,7 @@ class BillingJobApplicationTests {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("input.file", "src/main/resources/billing-2023-03.csv")
                 .addString("output.file", "staging/billing-report-2023-03.csv")
-                .addString("skip.file", "staging/billing-data-skip-2023-03.csv")
+                .addString("skip.file", "staging/billing-data-skip-2023-03.psv")
                 .addJobParameter("data.year", 2023, Integer.class)
                 .addJobParameter("data.month", 3, Integer.class)
                 .toJobParameters();
@@ -86,7 +86,7 @@ class BillingJobApplicationTests {
         Assertions.assertTrue(Files.exists(Paths.get("staging", "billing-2023-03.csv")));
         Path billingReport = Paths.get("staging", "billing-report-2023-03.csv");
         Assertions.assertTrue(Files.exists(billingReport));
-        Path billingDataSkip = Paths.get("staging", "billing-data-skip-2023-03.csv");
+        Path billingDataSkip = Paths.get("staging", "billing-data-skip-2023-03.psv");
         Assertions.assertTrue(Files.exists(billingDataSkip));
         Assertions.assertEquals(2, Files.lines(billingDataSkip).count());
     }
@@ -97,7 +97,7 @@ class BillingJobApplicationTests {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("input.file", "src/main/resources/billing-2023-04.csv")
                 .addString("output.file", "staging/billing-report-2023-04.csv")
-                .addString("skip.file", "staging/billing-data-skip-2023-04.csv")
+                .addString("skip.file", "staging/billing-data-skip-2023-04.psv")
                 .addJobParameter("data.year", 2023, Integer.class)
                 .addJobParameter("data.month", 3, Integer.class)
                 .toJobParameters();
@@ -110,7 +110,7 @@ class BillingJobApplicationTests {
         Assertions.assertTrue(Files.exists(Paths.get("staging", "billing-2023-04.csv")));
         Path billingReport = Paths.get("staging", "billing-report-2023-04.csv");
         Assertions.assertTrue(Files.exists(billingReport));
-        Path billingDataSkip = Paths.get("staging", "billing-data-skip-2023-04.csv");
+        Path billingDataSkip = Paths.get("staging", "billing-data-skip-2023-04.psv");
         Assertions.assertTrue(Files.exists(billingDataSkip));
     }
 
